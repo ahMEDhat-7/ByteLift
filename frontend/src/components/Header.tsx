@@ -36,7 +36,7 @@ export default function Header() {
             <div className="header-actions">
               <div className="user-info">
                 <span className="user-avatar">👤</span>
-                <span className="user-email">{user?.email}</span>
+                <span className="user-email">{user?.username}</span>
               </div>
               <button className="btn btn-outline" onClick={handleLogout}>
                 Logout

@@ -328,6 +328,22 @@ body {
   color: var(--text-muted);
 }
 
+.form-input.input-error {
+  border-color: #ef4444;
+}
+
+.form-input.input-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
 .auth-footer {
   margin-top: 1.5rem;
   text-align: center;

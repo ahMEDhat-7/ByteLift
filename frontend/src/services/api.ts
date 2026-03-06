@@ -57,7 +57,7 @@ export const deleteFile = (id: number) => api.delete(`/files/${id}`);
 export const login = (email: string, password: string) =>
   api.post("/auth/login", { email, password });
 
-export const signup = (email: string, password: string) =>
-  api.post("/auth/signup", { email, password });
+export const signup = (email: string, password: string, username: string) =>
+  api.post("/auth/signup", { email, password, username });
 
 export default api;

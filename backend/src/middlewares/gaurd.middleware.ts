@@ -18,7 +18,7 @@ const authGaurd = async (req: Request, res: Response, next: NextFunction) => {
       );
 
     const user = await getPool().query(
-      "SELECT id, email FROM users WHERE id = $1",
+      "SELECT id, username, email FROM users WHERE id = $1",
       [payload.id],
     );
 
@@ -26,7 +26,7 @@ const authGaurd = async (req: Request, res: Response, next: NextFunction) => {
       return next(new CustomError(401, "Invalid Token - user not found"));
 
     // pass user info for downstream handlers
-    (req as any)["user"] = { id: user.rows[0].id, email: user.rows[0].email };
+    (req as any)["user"] = { id: user.rows[0].id, username: user.rows[0].username, email: user.rows[0].email };
     next();
   } catch (error) {
     next(new CustomError(500, "Something wrong occurs"));

@@ -9,15 +9,32 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { login: authLogin } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      showToast('Please fill in all fields', 'error');
+    if (!validate()) {
       return;
     }
 
@@ -25,7 +42,7 @@ export default function Login() {
     try {
       const response = await login(email, password);
       const { data } = response.data;
-      authLogin({ id: data.id, email: data.email }, data.token);
+      authLogin({ id: data.id, email: data.email, username: data.username }, data.token);
       showToast('Welcome back!', 'success');
       navigate('/dashboard');
     } catch (error: any) {
@@ -51,10 +68,14 @@ export default function Login() {
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrors((prev) => ({ ...prev, email: "" }));
+              }}
               placeholder="Enter your email"
-              className="form-input"
+              className={`form-input ${errors.email ? "input-error" : ""}`}
             />
+            {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
 
           <div className="form-group">
@@ -63,10 +84,14 @@ export default function Login() {
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setErrors((prev) => ({ ...prev, password: "" }));
+              }}
               placeholder="Enter your password"
-              className="form-input"
+              className={`form-input ${errors.password ? "input-error" : ""}`}
             />
+            {errors.password && <span className="error-text">{errors.password}</span>}
           </div>
 
           <button type="submit" className="btn btn-primary btn-full" disabled={loading}>

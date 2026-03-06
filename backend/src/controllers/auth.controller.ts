@@ -8,29 +8,35 @@ import { generateToken } from "../utils/tokenHelper";
 const signup = wrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, password } = req.body;
-      if (!email || !password)
+      const { email, password, username } = req.body;
+      if (!email || !password || !username)
         return next(new CustomError(400, "Missing credentials"));
 
-      const user = await getPool().query(
-        "SELECT id ,email, password_hash FROM users WHERE email= $1;",
+      const existingEmail = await getPool().query(
+        "SELECT id FROM users WHERE email = $1;",
         [email],
       );
+      if (existingEmail.rows.length > 0)
+        return next(new CustomError(400, "Email already exists"));
 
-      if (user.rows.length > 0)
-        return next(new CustomError(400, "email already exists"));
+      const existingUsername = await getPool().query(
+        "SELECT id FROM users WHERE username = $1;",
+        [username],
+      );
+      if (existingUsername.rows.length > 0)
+        return next(new CustomError(400, "Username already exists"));
 
       const hashedPassword = await hashPassword(password);
       const newUser = await getPool().query(
-        "INSERT INTO users(email,password_hash) VALUES($1,$2) RETURNING id, email;",
-        [email, hashedPassword],
+        "INSERT INTO users(username, email, password_hash) VALUES($1, $2, $3) RETURNING id, username, email;",
+        [username, email, hashedPassword],
       );
 
       const token = generateToken({ id: newUser.rows[0].id });
 
       return res.status(201).json({
         message: "user created",
-        data: { id: newUser.rows[0].id, email: newUser.rows[0].email, token },
+        data: { id: newUser.rows[0].id, username: newUser.rows[0].username, email: newUser.rows[0].email, token },
       });
     } catch (error) {
       return next(new CustomError(500, "Something wrong occurs"));
@@ -46,7 +52,7 @@ const login = wrapper(
         return next(new CustomError(400, "Missing credentials"));
 
       const user = await getPool().query(
-        "SELECT id ,email, password_hash FROM users WHERE email= $1;",
+        "SELECT id, username, email, password_hash FROM users WHERE email = $1;",
         [email],
       );
       if (!user.rows.length)
@@ -59,7 +65,7 @@ const login = wrapper(
 
       return res.status(200).json({
         message: "you logged in",
-        data: { id: user.rows[0].id, email: user.rows[0].email, token },
+        data: { id: user.rows[0].id, username: user.rows[0].username, email: user.rows[0].email, token },
       });
     } catch (error) {
       return next(new CustomError(500, "Something wrong occurs"));

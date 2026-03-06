@@ -1,38 +1,6 @@
 import { Router } from "express";
 import { create, find, findOne, remove } from "../controllers/file.controller";
-
-import multer from "multer";
-import { CustomError } from "../utils/CustomError";
-import { hashName } from "../utils/fileHelper";
-import { UPLOAD_DIR } from "../config/db";
-const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, UPLOAD_DIR);
-  },
-  filename: (req, file, callback) => {
-    callback(null, hashName(file.originalname));
-  },
-});
-const upload = multer({
-  storage,
-  limits: { fileSize: 100 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "video/mp4",
-      "application/pdf",
-      "text/plain",
-      "application/octet-stream",
-    ];
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new CustomError(400, "File type not allowed"));
-    }
-  },
-});
+import { upload } from "../config/cloudinary";
 
 const fileRouter = Router();
 
