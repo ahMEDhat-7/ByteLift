@@ -5,7 +5,7 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "mkdir -p ./frontend && cp -r ../frontend/dist/* ./frontend/ && tsc",
     "start": "node dist/index.js",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "lint": "eslint 'src/**/*.ts'"

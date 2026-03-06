@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use("/api", routes);
 
-const clientPath = path.join(process.cwd(), "frontend/dist");
+const clientPath = path.join(process.cwd(), "frontend");
 app.use(express.static(clientPath));
 app.get("*", (req, res) => {
   res.sendFile(path.join(clientPath, "index.html"));
