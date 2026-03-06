@@ -26,7 +26,9 @@ jobs:
           cache: "pnpm"
 
       - name: Install pnpm
-        run: npm install -g pnpm
+        uses: pnpm/setup-pnpm@v5
+        with:
+          version: 9
 
       - name: Install dependencies (root)
         run: pnpm install --frozen-lockfile
