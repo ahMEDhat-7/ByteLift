@@ -19,7 +19,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: 22.x.x
+          node-version: "22"
+          cache: "pnpm"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -45,21 +46,6 @@ jobs:
       - name: Copy frontend build to backend
         run: mkdir -p ./backend/dist/frontend && cp -r ./frontend/dist/* ./backend/dist/frontend/
 
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
-
-      - name: Deploy to Azure
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: bytelift
-          package: ./backend/dist
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-
       - name: Configure App Settings
         uses: azure/appservice-settings@v1
         with:
@@ -68,9 +54,21 @@ jobs:
             [
               {"name": "PORT", "value": "8080"},
               {"name": "NODE_ENV", "value": "production"},
-              {"name": "DATABASE_URL", "value": "${{ secrets.DATABASE_URL }}"},
+              {"name": "DB_USER", "value": "${{ vars.DB_USER }}"},
+              {"name": "DB_HOST", "value": "${{ vars.DB_HOST }}"},
+              {"name": "DB_NAME", "value": "${{ vars.DB_NAME }}"},
+              {"name": "DB_PORT", "value": "${{ vars.DB_PORT }}"},
+              {"name": "DB_PASSWORD", "value": "${{ secrets.DB_PASSWORD }}"},
+              {"name": "DB_CA", "value": "${{ secrets.DB_CA }}"},
               {"name": "JWT_SECRET", "value": "${{ secrets.JWT_SECRET }}"},
-              {"name": "CLOUDINARY_CLOUD_NAME", "value": "${{ secrets.CLOUDINARY_CLOUD_NAME }}"},
-              {"name": "CLOUDINARY_API_KEY", "value": "${{ secrets.CLOUDINARY_API_KEY }}"},
+              {"name": "CLOUDINARY_CLOUD_NAME", "value": "${{ vars.CLOUDINARY_CLOUD_NAME }}"},
+              {"name": "CLOUDINARY_API_KEY", "value": "${{ vars.CLOUDINARY_API_KEY }}"},
               {"name": "CLOUDINARY_API_SECRET", "value": "${{ secrets.CLOUDINARY_API_SECRET }}"}
             ]
+
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: bytelift
+          package: ./backend/dist
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
